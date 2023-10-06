@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  app:
+    image: "simpleapp"
+    build:
+      context: .
+      args:
+        ENCODING: UTF-8
+        LANG: en_ZA.UTF-8
+        LANGUAGE: en_ZA
+        LC_ALL: en_ZA.UTF-8
+    network_mode: "host"
+    restart: unless-stopped
+    logging:
+      driver: syslog
+    tmpfs:
+    - /tmp
+    hostname: __DOCKER_HOSTNAME__
+    volumes:
+      - ./data:/data
+      - /dev/log:/dev/log
+    environment:
+      APP_NAME: simpleapp
+      DEVICE_NAME: simpleapp
