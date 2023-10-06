@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 set -o pipefail
 cd "$(dirname "$0")"
 
