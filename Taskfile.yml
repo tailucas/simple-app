@@ -50,7 +50,6 @@ tasks:
     desc: Run docker container
     preconditions:
       - test -f docker-compose.yml
-      - docker ps | grep 1password
     cmds:
       - docker-compose up
   rund:
@@ -58,7 +57,6 @@ tasks:
     desc: Run docker container and detach
     preconditions:
       - test -f docker-compose.yml
-      - docker ps | grep 1password
     cmds:
       - docker-compose up -d
   connect:
