@@ -1,24 +1,22 @@
 version: "3.8"
 services:
   app:
-    image: "simpleapp"
+    image: "${DOCKER_IMAGE}"
     build:
       context: .
       args:
-        ENCODING: UTF-8
-        LANG: en_ZA.UTF-8
-        LANGUAGE: en_ZA
-        LC_ALL: en_ZA.UTF-8
-    network_mode: "host"
-    restart: unless-stopped
+        FOO: bar
     logging:
       driver: syslog
+      options:
+        syslog-address: "${SYSLOG_ADDRESS}"
+        syslog-format: "rfc3164"
+        tag: "${DEVICE_NAME}"
     tmpfs:
     - /tmp
-    hostname: __DOCKER_HOSTNAME__
+    hostname: ${DEVICE_NAME}
     volumes:
       - ./data:/data
       - /dev/log:/dev/log
-    environment:
-      APP_NAME: simpleapp
-      DEVICE_NAME: simpleapp
+    env_file:
+      - .env
