@@ -1,4 +1,4 @@
-FROM tailucas/base-app:20231117
+FROM tailucas/base-app:20231119_2
 # for system/site packages
 USER root
 # generate correct locales
