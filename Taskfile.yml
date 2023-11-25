@@ -35,6 +35,7 @@ tasks:
       - echo 'DEVICE_NAME="simpleapp"' >> .env
       - echo 'APP_NAME="simpleapp"' >> .env
       - echo 'SYSLOG_ADDRESS="udp://localhost:514"' >> .env
+      - echo 'RUN_JAVA_APP="true"' >> .env
   setup:
     deps: [create-dot-env]
     desc: Generate a usable docker-compose.yml for Docker build.
