@@ -1,6 +1,6 @@
 {
     "build": { "dockerfile": "Dockerfile" },
-    "postCreateCommand": "bash dev-env-deps.sh",
+    "postCreateCommand": "bash .devcontainer/dev-env-deps.sh",
     "customizations": {
         "vscode": {
             "extensions": [
