@@ -31,7 +31,7 @@ COPY config/app.conf ./config/app.conf
 COPY poetry.lock pyproject.toml ./
 RUN /opt/app/python_setup.sh
 # add the project application
-COPY app/ ./app/
+COPY app/__main__.py ./app/
 # override entrypoint
 COPY app_entrypoint.sh .
 CMD ["/opt/app/entrypoint.sh"]

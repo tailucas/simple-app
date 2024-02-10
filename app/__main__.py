@@ -3,6 +3,7 @@ import logging.handlers
 
 import asyncio
 import builtins
+import configparser
 import locale
 import os
 import threading
@@ -40,13 +41,16 @@ def main():
         args=(signal_handler,),
         daemon=True)
     # test inherited locale settings
-    locale.setlocale(locale.LC_ALL, os.environ['LC_ALL'])
-    conv=locale.localeconv()
-    int_curr_symbol = str(conv['int_curr_symbol']).rstrip()
-    currency_symbol = str(conv['currency_symbol'])
-    if int_curr_symbol is None or len(int_curr_symbol) == 0:
-        raise AssertionError('Locale settings are incomplete. Local currency configuration is not available.')
-    log.info(f'Locale is {locale.getlocale()} using currency symbols [{int_curr_symbol}] => [{currency_symbol}]')
+    if 'LC_ALL' in os.environ.keys():
+        locale.setlocale(locale.LC_ALL, os.environ['LC_ALL'])
+        conv=locale.localeconv()
+        int_curr_symbol = str(conv['int_curr_symbol']).rstrip()
+        currency_symbol = str(conv['currency_symbol'])
+        if int_curr_symbol is None or len(int_curr_symbol) == 0:
+            raise AssertionError('Locale settings are incomplete. Local currency configuration is not available.')
+        log.info(f'Locale is {locale.getlocale()} using currency symbols [{int_curr_symbol}] => [{currency_symbol}]')
+    else:
+        log.warning(f'No locale settings found for currency and date configurations.')
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     # startup completed
@@ -55,10 +59,15 @@ def main():
     try:
         # start thread nanny
         nanny.start()
-        config_value = app_config.getint('app', 'simple_config')
+        config_value = None
+        try:
+            config_value = app_config.getint('app', 'simple_config')
+        except configparser.NoSectionError:
+            log.warning('No configuration found, likely due to being run outside of the container context.')
         env_vars = list(os.environ)
         env_vars.sort()
-        log.info(f'Startup complete with {config_value=!s} and {len(env_vars)} environment variables visible: {env_vars}.')
+        from . import WORK_DIR
+        log.info(f'Startup complete with {config_value=!s} and {len(env_vars)} environment variables visible: {env_vars}. {WORK_DIR=}.')
         threads.interruptable_sleep.wait()
         log.info('Shutting down...')
     finally:

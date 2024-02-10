@@ -13,6 +13,8 @@ Assuming a Linux environment like Ubuntu with no-password SSH enabled:
 6) Run the applications using `task run` and in a separate terminal look for the application logs under `/var/log/syslog`.
 7) If you do not want to run any Python app, set the environment variable `NO_PYTHON_APP` to anything. See [base_entrypoint.sh](https://github.com/tailucas/base-app/blob/862c244bb0f53dff47d4a6e8f829972e060cf060/base_entrypoint.sh#L20) for an example. If you do not want to run a Java app, set the environment variable `RUN_JAVA_APP` to anything other than `true`. See [base_entrypoint.sh](https://github.com/tailucas/base-app/blob/862c244bb0f53dff47d4a6e8f829972e060cf060/base_entrypoint.sh#L34C9-L34C21) for an example. See the `create-dot-env` command in [Taskfile.yml](https://github.com/tailucas/simple-app/blob/a90d6f4f752738277b0b5c90bb840a1b6e5170a6/Taskfile.yml#L25) for example environment variable settings.
 
+Note: the applications are designed to run in an application container via the `task run` command for interactive execution or `task rund` for background execution from which Docker will then manage the container life-cycle. For development purposes, the Java sample can be run directly from VS Code and the Python application can be run from the command-line using `poetry run app` which uses a tooling hint found in [pyproject.toml](https://github.com/tailucas/simple-app/blob/42219b79593d12d2646e277d169ff35447c9651f/pyproject.toml#L9).
+
 ## Option 2: Native Environment
 Install these tools and make sure that they are on the environment `$PATH`.
 
