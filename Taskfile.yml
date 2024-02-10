@@ -15,20 +15,15 @@ tasks:
   default:
     cmds:
       - task: rund
-  user:
+  datadir:
     desc: Create system user and associate with docker group.
-    preconditions:
-      - test $(getent group docker | cut -f3 -d ':') = "{{.GROUP_ID}}"
     cmds:
-      - id {{.USER_ID}} || (sudo useradd -r -u {{.USER_ID}} -g {{.GROUP_ID}} app && sudo usermod -a -G {{.GROUP_ID}} -u {{.USER_ID}} app)
       - mkdir -p ./data/
       - sudo chown {{.USER_ID}}:{{.GROUP_ID}} ./data/
       - sudo chmod 755 ./data/
       - sudo chmod g+rws ./data/
   create-dot-env:
     desc: Dump container environment to local file.
-    preconditions:
-      - test -n "$(docker ps | grep op-connect-api)"
     cmds:
       - rm -f .env
       - echo 'DOCKER_IMAGE="simpleapp"' >> .env
@@ -37,7 +32,7 @@ tasks:
       - echo 'SYSLOG_ADDRESS="udp://localhost:514"' >> .env
       - echo 'RUN_JAVA_APP="true"' >> .env
   setup:
-    deps: [create-dot-env]
+    deps: [create-dot-env, datadir]
     desc: Generate a usable docker-compose.yml for Docker build.
     preconditions:
       - poetry -V
