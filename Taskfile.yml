@@ -14,7 +14,7 @@ dotenv: ['.env']
 tasks:
   default:
     cmds:
-      - task: rund
+      - task: build
   datadir:
     desc: Create system user and associate with docker group.
     cmds:
@@ -22,17 +22,22 @@ tasks:
       - sudo chown {{.USER_ID}}:{{.GROUP_ID}} ./data/
       - sudo chmod 755 ./data/
       - sudo chmod g+rws ./data/
+      - sudo rm -f ./data/app-std* ./data/cron-std* ./data/supervisor.sock
   create-dot-env:
     desc: Dump container environment to local file.
     cmds:
       - rm -f .env
-      - echo 'DOCKER_IMAGE="simpleapp"' >> .env
-      - echo 'DEVICE_NAME="simpleapp"' >> .env
-      - echo 'APP_NAME="simpleapp"' >> .env
+      - echo 'ENCODING="{{.ENCODING}}"' >> .env
+      - echo 'D_LANG="{{.LANG}}"' >> .env
+      - echo 'D_LANGUAGE="{{.LANGUAGE}}"' >> .env
+      - echo 'D_LC_ALL="{{.LC_ALL}}"' >> .env
+      - echo 'DOCKER_IMAGE="{{.PROJECT_NAME}}"' >> .env
+      - echo 'DEVICE_NAME="{{.PROJECT_NAME}}"' >> .env
+      - echo 'APP_NAME="{{.PROJECT_NAME}}"' >> .env
       - echo 'SYSLOG_ADDRESS="udp://localhost:514"' >> .env
       - echo 'RUN_JAVA_APP="true"' >> .env
-  setup:
-    deps: [create-dot-env, datadir]
+  docker:
+    deps: [create-dot-env]
     desc: Generate a usable docker-compose.yml for Docker build.
     preconditions:
       - poetry -V
@@ -53,31 +58,38 @@ tasks:
       - mvn -v
     cmds:
       - mvn package
+  push:
+    deps: [build]
+    desc: Push built image to Docker Hub
+    preconditions:
+      - docker-compose images
+    cmds:
+      - docker-compose push
   build:
-    deps: [setup, java]
+    deps: [docker, java]
     desc: Clean up volume directory and build container image.
     preconditions:
-      - test -d ./data/
       - docker-compose -v
     cmds:
-      - sudo rm -f ./data/app-std* ./data/cron-std* ./data/supervisor.sock
       - docker-compose build --progress plain
   run:
-    deps: [build]
+    deps: [build, datadir]
     desc: Run docker container
     preconditions:
       - docker -v
-      - docker-compose -v
       - test -f docker-compose.yml
+      - docker ps | grep 1password
+      - test -d ./data/
     cmds:
       - docker-compose up
   rund:
-    deps: [build]
+    deps: [build, datadir]
     desc: Run docker container and detach
     preconditions:
       - docker -v
-      - docker-compose -v
       - test -f docker-compose.yml
+      - docker ps | grep 1password
+      - test -d ./data/
     cmds:
       - docker-compose up -d
   connect:

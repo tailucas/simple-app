@@ -3,4 +3,8 @@
 version: '3'
 
 vars:
-  APP: simpleapp
+  PROJECT_NAME: simple-app
+  ENCODING: UTF-8
+  LANG: en_ZA.UTF-8
+  LANGUAGE: en_ZA
+  LC_ALL: en_ZA.UTF-8
