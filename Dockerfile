@@ -22,7 +22,7 @@ COPY config/cron/simplejob ./config/cron/
 # apply override
 RUN /opt/app/app_setup.sh
 # application
-COPY ./target/*-jar-with-dependencies.jar ./app.jar
+COPY ./target/app-*-jar-with-dependencies.jar ./app.jar
 # switch to user
 USER app
 # override configuration
