@@ -36,6 +36,7 @@ tasks:
       - echo 'APP_NAME="{{.PROJECT_NAME}}"' >> .env
       - echo 'SYSLOG_ADDRESS="udp://localhost:514"' >> .env
       - echo 'RUN_JAVA_APP="true"' >> .env
+      - echo 'RUN_RUST_APP="true"' >> .env
   docker:
     deps: [create-dot-env]
     desc: Generate a usable docker-compose.yml for Docker build.
@@ -43,6 +44,8 @@ tasks:
       - poetry -V
       - python -V
       - python3 -V
+      - cargo -V
+      - rustup -V
       - test -f yaml_interpol
       - test -f docker-compose.template
     cmds:
