@@ -28,9 +28,9 @@ tasks:
     cmds:
       - rm -f .env
       - echo 'ENCODING="{{.ENCODING}}"' >> .env
-      - echo 'D_LANG="{{.LANG}}"' >> .env
-      - echo 'D_LANGUAGE="{{.LANGUAGE}}"' >> .env
-      - echo 'D_LC_ALL="{{.LC_ALL}}"' >> .env
+      - echo 'LANG="{{.LANG}}"' >> .env
+      - echo 'LANGUAGE="{{.LANGUAGE}}"' >> .env
+      - echo 'LC_ALL="{{.LC_ALL}}"' >> .env
       - echo 'DOCKER_IMAGE="{{.PROJECT_NAME}}"' >> .env
       - echo 'DEVICE_NAME="{{.PROJECT_NAME}}"' >> .env
       - echo 'APP_NAME="{{.PROJECT_NAME}}"' >> .env
@@ -73,6 +73,10 @@ tasks:
     desc: Clean up volume directory and build container image.
     preconditions:
       - docker compose -v
+    env:
+      D_LANG: "{{.LANG}}"
+      D_LANGUAGE: "{{.LANGUAGE}}"
+      D_LC_ALL: "{{.LC_ALL}}"
     cmds:
       - docker compose build --progress plain
   run:
