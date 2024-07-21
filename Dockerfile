@@ -17,7 +17,7 @@ RUN apt-get update \
 # user scripts
 COPY simplejob.sh .
 # cron jobs
-RUN rm -f ./config/cron/simplejob
+RUN rm -f ./config/cron/base_job
 COPY config/cron/simplejob ./config/cron/
 # apply override
 RUN /opt/app/app_setup.sh
