@@ -1,32 +1,20 @@
 #!/usr/bin/env python
 import asyncio
-import builtins
 import configparser
 import locale
-import logging.handlers
+import logging
 import os
 import threading
 
-# setup builtins used by pylib init
-from . import APP_NAME
 
-builtins.SENTRY_EXTRAS = []
-
-
-class CredsConfig:
-    sentry_dsn: f'opitem:"Sentry" opfield:{APP_NAME}.dsn' = None  # type: ignore
-
-
-# instantiate class
-builtins.creds_config = CredsConfig()
-
-from tailucas_pylib import app_config, log, threads
+from tailucas_pylib import app_config, log, WORK_DIR
 from tailucas_pylib.process import SignalHandler
-from tailucas_pylib.threads import bye, die, thread_nanny
+from tailucas_pylib import threads
+from tailucas_pylib.threads import thread_nanny, die, bye
 from tailucas_pylib.zmq import zmq_term
 
 
-def main():
+async def main():
     log.setLevel(logging.DEBUG)
     # ensure proper signal handling; must be main thread
     signal_handler = SignalHandler()
@@ -65,7 +53,6 @@ def main():
             )
         env_vars = list(os.environ)
         env_vars.sort()
-        from . import WORK_DIR
 
         log.info(
             f"Startup complete with {config_value=!s} and {len(env_vars)} environment variables visible: {env_vars}. {WORK_DIR=}."
@@ -80,4 +67,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

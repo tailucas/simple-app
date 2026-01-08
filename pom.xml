@@ -3,7 +3,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>tailucas.app</groupId>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.4.13</version>
+		<relativePath/>
+	</parent>
+  <groupId>tailucas</groupId>
   <artifactId>app</artifactId>
   <version>0.1.0</version>
   <packaging>jar</packaging>
@@ -11,38 +17,104 @@
   <url>https://tailucas.github.io/</url>
   <description>Batteries-included boilerplate.</description>
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>21</java.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
-
     <project.mainclass>simple.app.App</project.mainclass>
+    <maven.compiler.release>25</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- runtime dependencies -->
+    <commons-lang3.version>3.20.0</commons-lang3.version>
     <ini4j.version>0.5.4</ini4j.version>
-    <msgpack.version>0.9.8</msgpack.version>
-    <jackson.version>2.15.3</jackson.version>
+    <sentry-spring-boot-starter-jakarta.version>8.29.0</sentry-spring-boot-starter-jakarta.version>
+    <amqp-client.version>5.28.0</amqp-client.version>
+    <paho.version>1.2.5</paho.version>
+    <jackson-dataformat-msgpack.version>0.9.10</jackson-dataformat-msgpack.version>
+    <jackson-databind.version>2.20.1</jackson-databind.version>
     <zeromq.version>0.6.0</zeromq.version>
-    <slf4j.version>2.0.9</slf4j.version>
+    <slf4j-api.version>2.0.17</slf4j-api.version>
+    <slf4j-simple.version>2.0.17</slf4j-simple.version>
+    <opconnect-java.version>0.6.2</opconnect-java.version>
+    <prometheus-metrics-core.version>1.4.3</prometheus-metrics-core.version>
+    <prometheus-metrics-exporter-httpserver.version>1.4.3</prometheus-metrics-exporter-httpserver.version>
+    <prometheus-metrics-instrumentation-jvm.version>1.4.3</prometheus-metrics-instrumentation-jvm.version>
 
     <!-- test dependencies -->
-    <junit.version>5.10.2</junit.version>
+    <junit-jupiter.version>6.0.1</junit-jupiter.version>
 
     <!-- build toolchain -->
-    <maven.dependency.plugin.version>3.6.1</maven.dependency.plugin.version>
-    <maven.exec.maven.plugin>3.2.0</maven.exec.maven.plugin>
-    <maven.enforcer.plugin>3.4.1</maven.enforcer.plugin>
-    <maven.jar.plugin>3.1.0</maven.jar.plugin>
+    <maven.dependency.plugin.version>3.9.0</maven.dependency.plugin.version>
+    <maven.exec.maven.plugin>3.6.3</maven.exec.maven.plugin>
+    <maven.enforcer.plugin>3.6.2</maven.enforcer.plugin>
 
-    <versions.maven.plugin.version>2.16.2</versions.maven.plugin.version>
-    <spotbugs-maven-plugin.version>4.8.5.0</spotbugs-maven-plugin.version>
+    <versions.maven.plugin.version>2.20.1</versions.maven.plugin.version>
+    <spotbugs-maven-plugin.version>4.9.8.2</spotbugs-maven-plugin.version>
 
     <!-- properties file -->
-    <properties-plugin.version>1.2.1</properties-plugin.version>
     <app.project-name>${project.name}</app.project-name>
+    <sentry.environment>java</sentry.environment>
+    <spring.threads.virtual.enabled>true</spring.threads.virtual.enabled>
+    <spring.main.keep-alive>true</spring.main.keep-alive>
+    <server.port>8085</server.port>
+    <metrics.port>9400</metrics.port>
+    <management.endpoints.web.exposure.include>health,info,loggers</management.endpoints.web.exposure.include>
   </properties>
 
   <dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+          <exclusion>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-logging</artifactId>
+          </exclusion>
+      </exclusions>
+		</dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-log4j2</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.prometheus</groupId>
+      <artifactId>prometheus-metrics-core</artifactId>
+      <version>${prometheus-metrics-core.version}</version>
+    </dependency>
+
+    <dependency>
+        <groupId>io.prometheus</groupId>
+        <artifactId>prometheus-metrics-instrumentation-jvm</artifactId>
+        <version>${prometheus-metrics-instrumentation-jvm.version}</version>
+    </dependency>
+
+    <dependency>
+        <groupId>io.prometheus</groupId>
+        <artifactId>prometheus-metrics-exporter-httpserver</artifactId>
+        <version>${prometheus-metrics-exporter-httpserver.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.sanctionco.opconnect</groupId>
+      <artifactId>opconnect-java</artifactId>
+      <version>${opconnect-java.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons-lang3.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.ini4j</groupId>
@@ -51,15 +123,33 @@
     </dependency>
 
     <dependency>
+      <groupId>io.sentry</groupId>
+      <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
+      <version>${sentry-spring-boot-starter-jakarta.version}</version>
+    </dependency>
+
+    <dependency>
+        <groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+        <version>${amqp-client.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.paho</groupId>
+      <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+      <version>${paho.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
+      <version>${jackson-databind.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.msgpack</groupId>
       <artifactId>jackson-dataformat-msgpack</artifactId>
-      <version>${msgpack.version}</version>
+      <version>${jackson-dataformat-msgpack.version}</version>
     </dependency>
 
     <dependency>
@@ -71,20 +161,33 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j.version}</version>
+      <version>${slf4j-simple.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
+      <version>${slf4j-api.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>${junit-jupiter.version}</version>
+        <scope>test</scope>
     </dependency>
 
     <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>${junit.version}</version>
-        <scope>test</scope>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+            <groupId>com.vaadin.external.google</groupId>
+            <artifactId>android-json</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
   </dependencies>
@@ -153,25 +256,21 @@
     </pluginManagement>
     <plugins>
       <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <!-- TODO: Update base image to bootstrap application using Maven -->
+        <!--
+        <configuration>
+          <jvmArguments>
+              -Djava.io.tmpdir=/data/
+          </jvmArguments>
+        </configuration>
+        -->
+      </plugin>
+      <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
         <version>${spotbugs-maven-plugin.version}</version>
-      </plugin>
-      <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>properties-maven-plugin</artifactId>
-          <version>${properties-plugin.version}</version>
-          <executions>
-              <execution>
-                  <phase>generate-resources</phase>
-                  <goals>
-                      <goal>write-project-properties</goal>
-                  </goals>
-                  <configuration>
-                      <outputFile>${project.build.outputDirectory}/application.properties</outputFile>
-                  </configuration>
-              </execution>
-          </executions>
       </plugin>
       <!-- https://maven.apache.org/enforcer/enforcer-rules/requireMavenVersion.html -->
       <plugin>
@@ -193,28 +292,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <mainClass>${project.mainclass}</mainClass>
-            </manifest>
-          </archive>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
       </plugin>
     </plugins>
   </build>

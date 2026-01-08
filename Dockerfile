@@ -1,38 +1,51 @@
+FROM tailucas/base-app:latest AS builder
+# prepare source
+COPY src ./src/
+COPY java_setup.sh pom.xml rules.xml ./
+RUN "${APP_DIR}/java_setup.sh"
+
+###############################################################################
+
 FROM tailucas/base-app:latest
 # for system/site packages
 USER root
-# generate correct locales
-ARG LANG
-ENV LANG ${LANG}
-ARG LANGUAGE
-ENV LANGUAGE ${LANGUAGE}
-ARG LC_ALL
-ENV LC_ALL ${LC_ALL}
-ARG ENCODING
-RUN localedef -i ${LANGUAGE} -c -f ${ENCODING} -A /usr/share/locale/locale.alias ${LANG}
+ARG DEBIAN_FRONTEND=noninteractive
 # system setup
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        html-xml-utils
+        html-xml-utils \
+        wget \
+    && rm -rf /var/lib/apt/lists/*
+# generate correct locales
+ARG LANG
+ARG LANGUAGE
+RUN locale-gen ${LANGUAGE} \
+    && locale-gen ${LANG} \
+    && update-locale \
+    && locale -a
 # user scripts
 COPY simplejob.sh .
 # cron jobs
 RUN rm -f ./config/cron/base_job
 COPY config/cron/simplejob ./config/cron/
 # apply override
-RUN /opt/app/app_setup.sh
-# override application
-COPY ./target/app-*-jar-with-dependencies.jar ./app.jar
-COPY Cargo.toml Cargo.lock rapp rlib ./
-RUN chown app:app Cargo.lock
-COPY poetry.lock pyproject.toml ./
-RUN chown app:app poetry.lock
+RUN "${APP_DIR}/app_setup.sh"
+# add the project application
 COPY app/__main__.py ./app/
 # override configuration
 COPY config/app.conf ./config/app.conf
-# switch to run user
+# Python
+COPY app ./app
+COPY pyproject.toml uv.lock ./
+RUN chown app:app uv.lock
+# Java
+COPY --from=builder "${APP_DIR}/target/app-0.1.0.jar" ./app.jar
+# switch to run user now because uv does not use the environment to infer
 USER app
-RUN /opt/app/python_setup.sh
+RUN "${APP_DIR}/rust_setup.sh"
+RUN "${APP_DIR}/python_setup.sh"
+# example HTTP backend
+# EXPOSE 8080
 # override entrypoint
 COPY app_entrypoint.sh .
 CMD ["/opt/app/entrypoint.sh"]

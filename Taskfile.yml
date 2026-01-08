@@ -2,14 +2,9 @@
 
 version: '3'
 
-includes:
-  taskfile: ./app.yml
-
 vars:
   USER_ID: 999
   GROUP_ID: 999
-
-dotenv: ['.env']
 
 tasks:
   default:
@@ -23,36 +18,8 @@ tasks:
       - sudo chmod 755 ./data/
       - sudo chmod g+rws ./data/
       - sudo rm -f ./data/app-std* ./data/cron-std* ./data/supervisor.sock
-  create-dot-env:
-    desc: Dump container environment to local file.
-    cmds:
-      - rm -f .env
-      - echo 'ENCODING="{{.ENCODING}}"' >> .env
-      - echo 'LANG="{{.LANG}}"' >> .env
-      - echo 'LANGUAGE="{{.LANGUAGE}}"' >> .env
-      - echo 'LC_ALL="{{.LC_ALL}}"' >> .env
-      - echo 'DOCKER_IMAGE="{{.PROJECT_NAME}}"' >> .env
-      - echo 'DEVICE_NAME="{{.PROJECT_NAME}}"' >> .env
-      - echo 'APP_NAME="{{.PROJECT_NAME}}"' >> .env
-      - echo 'SYSLOG_ADDRESS="udp://localhost:514"' >> .env
-      - echo 'RUN_JAVA_APP="true"' >> .env
-      - echo 'RUN_RUST_APP="true"' >> .env
-  docker:
-    deps: [create-dot-env]
-    desc: Generate a usable docker-compose.yml for Docker build.
-    preconditions:
-      - poetry -V
-      - python -V
-      - python3 -V
-      - cargo -V
-      - rustup -V
-      - test -f yaml_interpol
-      - test -f docker-compose.template
-    cmds:
-      - rm -f docker-compose.yml
-      - cp docker-compose.template docker-compose.yml
     generates:
-      - docker-compose.yml
+      - ./data/
   java:
     desc: Build Java artifacts in preparation for container build.
     preconditions:
@@ -61,6 +28,32 @@ tasks:
       - mvn -v
     cmds:
       - mvn package
+      - mvn dependency:tree
+    generates:
+      - target/app-0.1.0.jar
+  python:
+    desc: Create and initialize Python virtual environment.
+    preconditions:
+      - uv -V
+    cmds:
+      - uv python install
+      - uv sync
+    generates:
+      - .venv
+  configure:
+    desc: Create runtime configuration.
+    deps: [build]
+    preconditions:
+      - docker -v
+      - docker compose version
+    cmds:
+      - rm -f .env
+      - cp base.env .env
+      - echo "" >> .env
+      - docker compose run --remove-orphans app /opt/app/dot_env_setup.sh >> .env
+      - test $(wc -l < .env) -ge 2
+    generates:
+      - .env
   push:
     deps: [build]
     desc: Push built image to Docker Hub
@@ -69,33 +62,28 @@ tasks:
     cmds:
       - docker compose push
   build:
-    deps: [docker, java]
     desc: Clean up volume directory and build container image.
     preconditions:
-      - docker compose -v
-    env:
-      D_LANG: "{{.LANG}}"
-      D_LANGUAGE: "{{.LANGUAGE}}"
-      D_LC_ALL: "{{.LC_ALL}}"
+      - docker -v
     cmds:
-      - docker compose build --progress plain
+      - docker compose --env-file base.env build --progress plain
   run:
-    deps: [build, datadir]
+    deps: [datadir, build, configure]
     desc: Run docker container
     preconditions:
       - docker -v
       - test -f docker-compose.yml
+      - docker ps | grep 1password
       - test -d ./data/
     cmds:
-      - docker compose up
+      - docker compose up --remove-orphans
   rund:
-    deps: [build, datadir]
+    deps: [datadir, build, configure]
     desc: Run docker container and detach
     preconditions:
       - docker -v
       - test -f docker-compose.yml
+      - docker ps | grep 1password
       - test -d ./data/
     cmds:
-      - docker compose up -d
-  connect:
-    cmd: ./connect_to_app.sh {{.DOCKER_APP}}
+      - docker compose up -d --remove-orphans

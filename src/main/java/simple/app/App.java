@@ -51,7 +51,7 @@ public class App
         }
         log.info("Working directory is: " + System.getProperty("user.dir"));
         try {
-            Ini appConfig = new Ini(new File("./app.conf"));
+            Ini appConfig = new Ini(new File("config/app.conf"));
             log.info("App Device Name: " + appConfig.get("app", "device_name"));
         } catch (IOException e) {
             log.error(e.getMessage(), e);

@@ -1,20 +1,27 @@
-[tool.poetry]
+[project]
 name = "app"
 version = "0.1.0"
-description = "A simple app."
-authors = ["Tai Lucas <tglucas@gmail.com>"]
-license = "MIT"
+description = "Simple Application"
 readme = "README.md"
-
-[tool.poetry.scripts]
-app = "app.__main__:main"
-
-[tool.poetry.dependencies]
-python = "^3.11"
-simplejson = "^3.19.2"
-python-dateutil = "^2.8.2"
-tailucas-pylib = "^0.4.1"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Tai Lucas", email = "tglucas@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "tailucas-pylib>=0.5.2",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.8.14,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "app"
+module-root = ""
+
+[project.scripts]
+aws_configure = "tailucas_pylib.tools.aws_configure:main"
+config_interpol = "tailucas_pylib.tools.config_interpol:main"
+cred_tool = "tailucas_pylib.tools.cred_tool:main"
+yaml_interpol = "tailucas_pylib.tools.yaml_interpol:main"
