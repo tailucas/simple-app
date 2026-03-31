@@ -50,8 +50,8 @@ tasks:
       - rm -f .env
       - cp base.env .env
       - echo "" >> .env
-      - docker compose run --remove-orphans app /opt/app/dot_env_setup.sh >> .env
-      - test $(wc -l < .env) -ge 2
+      #- docker compose run --remove-orphans app /opt/app/dot_env_setup.sh >> .env
+      #- test $(wc -l < .env) -ge 2
     generates:
       - .env
   push:
@@ -73,7 +73,6 @@ tasks:
     preconditions:
       - docker -v
       - test -f docker-compose.yml
-      - docker ps | grep 1password
       - test -d ./data/
     cmds:
       - docker compose up --remove-orphans

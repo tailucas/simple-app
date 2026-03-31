@@ -14,12 +14,6 @@ services:
       args:
         LANG: "${LANG:-en_ZA.UTF-8}"
         LANGUAGE: "${LANGUAGE:-en_ZA}"
-    logging:
-      driver: syslog
-      options:
-        syslog-address: "${SYSLOG_ADDRESS:-udp://localhost:514}"
-        syslog-format: "rfc3164"
-        tag: "${DEVICE_NAME:-simple-app}"
     tmpfs:
     - /tmp:exec
     hostname: ${DEVICE_NAME:-simple-app}
@@ -30,7 +24,6 @@ services:
       - "9400:9400"
     volumes:
       - ./data:/data
-      - /dev/log:/dev/log
 secrets:
     op_service_account_token:
         environment: OP_SERVICE_ACCOUNT_TOKEN

@@ -9,7 +9,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "tailucas-pylib>=0.6.2",
+    "tailucas-pylib>=0.6.3",
 ]
 
 [build-system]
